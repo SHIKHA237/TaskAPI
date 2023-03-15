@@ -1,3 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using TaskAPI.Data;
+using TaskAPI.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 {
     // Add services to the container.
@@ -7,6 +11,15 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
     builder.Services.AddRouting(options => options.LowercaseUrls = true);
+    
+    builder.Services.AddScoped<ITaskService, TaskService>();
+    builder.Services.AddScoped<IAssigneeService, AssigneeService>();
+    
+    //builder.Services.AddDbContext<BookApiDbContext>(options => options.UseInMemoryDatabase("BookDB"));
+    builder.Services.AddDbContext<TaskDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("TaskConnectionString")));
+
+
 }
 
 var app = builder.Build();

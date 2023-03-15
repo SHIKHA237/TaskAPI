@@ -7,10 +7,16 @@ namespace TaskAPI.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int ID { get; set; }
+        public int Id { get; set; }
+        [Column(TypeName = "varchar(250)")]
         public string Name { get; set; }
         [ForeignKey("TaskId")]
         public int TaskId { get; set; }
+        public virtual Tasks Tasks { get; set; }
+
+        public Assignee()
+        {
+        }
 
         public Assignee(string name, int taskId)
         {

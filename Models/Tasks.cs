@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 
 namespace TaskAPI.Models
@@ -6,19 +7,25 @@ namespace TaskAPI.Models
     public class Tasks
     {
         [Key]
+        public int TaskId { get; set; }
         [Required]
-        public int TaskId { get; }
+        [Column(TypeName = "varchar(200)")]
+        public string Title { get; set; }
+        [Column(TypeName = "varchar(500)")]
+        public string Description { get; set; }
         [Required]
-        public string Title { get; }
-        public string Description { get; }
+        [Column(TypeName = "varchar(250)")]
+        public string Team { get; set; }
+        public DateTime CreatedDate { get; set; }
         [Required]
-        public string Team { get; }
-        public DateTime CreatedDate { get; }
-        [Required]
-        public DateTime DueDate { get; }
+        public DateTime DueDate { get; set; }
        // public List<string> Image { get; }
-        public string Status { get; }
+        public string Status { get; set; }
 
+        public Tasks()
+        {
+
+        }
         public Tasks(
             int taskId,
             string title,

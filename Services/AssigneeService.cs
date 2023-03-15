@@ -10,7 +10,7 @@ namespace TaskAPI.Services
         {
             _dbContext = dbContext;
         }
-        public void CreateAssignee(Assignee assignee)
+        public void CreateTaskAssignee(Assignee assignee)
         {
             _dbContext.Assignees.Add(assignee);
             _dbContext.SaveChanges();

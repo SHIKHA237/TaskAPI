@@ -4,6 +4,6 @@ namespace TaskAPI.Services
 {
     public interface IAssigneeService
     {
-        void CreateAssignee(Assignee assignee);
+        void CreateTaskAssignee(Assignee assignee);
     }
 }

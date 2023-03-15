@@ -39,7 +39,7 @@ namespace TaskAPI.Controllers
                     assigneeName,
                     request.TaskId
                     );
-                _assigneeService.CreateAssignee(assignee);
+                _assigneeService.CreateTaskAssignee(assignee);
             }
             _taskService.CreateTask(task);
 
@@ -60,15 +60,17 @@ namespace TaskAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetTask()
+        public IActionResult GetTask(string assignee, string team)
         {
-            return Ok();
+            List<TaskInformation> taskinformation = _taskService.GetTask(assignee, team);
+            return Ok(taskinformation);
         }
 
         [HttpGet("count")]
         public IActionResult GetTeamsDetails()
         {
-            return Ok();
+            List<Object> teamdetails = _taskService.GetTeamsDetails();
+            return Ok(teamdetails);
         }
     }
 }
