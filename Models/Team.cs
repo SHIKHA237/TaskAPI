@@ -8,7 +8,7 @@ namespace TaskAPI.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
         [Column(TypeName = "varchar(250)")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public int AssigneeID { get; set; }
     }
 }

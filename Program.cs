@@ -24,6 +24,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var app = builder.Build();
 {
+    
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
     {
@@ -31,6 +32,7 @@ var app = builder.Build();
         app.UseSwaggerUI();
     }
 
+    app.UseExceptionHandler("/error");
     app.UseHttpsRedirection();
 
     app.UseAuthorization();

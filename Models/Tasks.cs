@@ -7,6 +7,7 @@ namespace TaskAPI.Models
     public class Tasks
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int TaskId { get; set; }
         [Required]
         [Column(TypeName = "varchar(200)")]

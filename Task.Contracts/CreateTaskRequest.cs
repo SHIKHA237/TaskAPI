@@ -1,4 +1,6 @@
 ﻿using TaskAPI.Models;
+using TaskAPI.Task.Contracts.DataAnnotations;
+
 
 namespace TaskAPI.Task.Contracts
 {
@@ -8,6 +10,6 @@ namespace TaskAPI.Task.Contracts
          string Description,
          string Team,
          List<string> AssigneesName,
-         DateTime DueDate,
-         List<string> Image);           
+         [Future] DateTime DueDate);
+      //   List<string> Image);           
 }

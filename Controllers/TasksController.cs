@@ -4,6 +4,7 @@ using System.Linq;
 using TaskAPI.Models;
 using TaskAPI.Services;
 using TaskAPI.Task.Contracts;
+using TaskAPI.Task.Contracts.Queries;
 
 namespace TaskAPI.Controllers
 {
@@ -22,28 +23,30 @@ namespace TaskAPI.Controllers
         [HttpPost]
         public IActionResult CreateTask(CreateTaskRequest request)
         {
-            var task = new Tasks(
+            try
+            {
+                var task = new Tasks(
                request.TaskId,
                request.Title,
                request.Description,
-               request.Team,               
+               request.Team,
                DateTime.UtcNow,
                request.DueDate,
-             //  request.Image,
+               //  request.Image,
                "Active");
 
-            List<String> AssigneesName = request.AssigneesName;
-            foreach (var assigneeName in AssigneesName)
-            {
-                var assignee = new Assignee(
-                    assigneeName,
-                    request.TaskId
-                    );
-                _assigneeService.CreateTaskAssignee(assignee);
-            }
-            _taskService.CreateTask(task);
+                _taskService.CreateTask(task);
 
-            var response = new TaskResponse(
+                List<String> AssigneesName = request.AssigneesName;
+                foreach (var assigneeName in AssigneesName)
+                {
+                    var assignee = new Assignee(
+                        assigneeName,
+                        request.TaskId
+                        );
+                    _assigneeService.CreateTaskAssignee(assignee);
+                }
+                var response = new TaskResponse(
                 task.TaskId,
                 task.Title,
                 task.Description,
@@ -51,25 +54,32 @@ namespace TaskAPI.Controllers
                 AssigneesName,
                 task.CreatedDate,
                 task.DueDate,
-               // task.Image,
+                // task.Image,
                 task.Status
                 );
 
-            return Ok(response);
+                return Ok(response);
+
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, "Internal server error");
+            }
+          
 
         }
 
         [HttpGet]
-        public IActionResult GetTask(string assignee, string team)
+        public IActionResult GetTask([FromQuery] GetAllPostQuery query)
         {
-            List<TaskInformation> taskinformation = _taskService.GetTask(assignee, team);
+            var taskinformation = _taskService.GetTask(query);
             return Ok(taskinformation);
         }
 
         [HttpGet("count")]
         public IActionResult GetTeamsDetails()
         {
-            List<Object> teamdetails = _taskService.GetTeamsDetails();
+            var teamdetails = _taskService.GetTeamsDetails();
             return Ok(teamdetails);
         }
     }

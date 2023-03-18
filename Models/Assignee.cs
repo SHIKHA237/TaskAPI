@@ -10,9 +10,9 @@ namespace TaskAPI.Models
         public int Id { get; set; }
         [Column(TypeName = "varchar(250)")]
         public string Name { get; set; }
-        [ForeignKey("TaskId")]
+      //  [ForeignKey("TaskId")]
         public int TaskId { get; set; }
-        public virtual Tasks Tasks { get; set; }
+      //  public virtual Tasks Tasks { get; set; }
 
         public Assignee()
         {
