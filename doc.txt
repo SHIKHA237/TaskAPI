@@ -1,0 +1,87 @@
+
+            //if (!string.IsNullOrEmpty(query.assigneeName) && query.team=="")
+            //{
+            //    var assignees = (from a in _dbContext.Assignees
+            //                   where a.Name == query.assigneeName
+            //                     select new
+            //                   {
+            //                       a.Name,
+            //                       a.TaskId
+            //                   }).ToList();
+            //    var tasks = _dbContext.Tasks.ToList();
+
+            //    var tasklist = (from t in tasks
+            //                   join a in assignees on t.TaskId equals a.TaskId
+            //                    select new TaskInformation()
+            //                    {
+            //                        TaskId = t.TaskId,
+            //                        Title = t.Title,
+            //                        Description = t.Description,
+            //                        Team = t.Team,
+            //                        AssigneeName = a.Name.Split().ToList(),
+            //                        CreatedDate = t.CreatedDate,
+            //                        DueDate = t.DueDate,
+            //                        Status = t.Status
+            //                    }).ToList();
+
+            //    return tasklist;
+            //}
+            //else if (!string.IsNullOrEmpty(query.team) && query.assigneeName =="")
+            //{
+            //    var tasklist = (from t in _dbContext.Tasks
+            //                    let st = (from a in _dbContext.Assignees
+            //                              where a.TaskId == t.TaskId
+            //                              select a.Name).ToList()
+            //                    where t.Team == query.team 
+            //                    select new TaskInformation()
+            //                    {
+            //                        TaskId = t.TaskId,
+            //                        Title = t.Title,
+            //                        Description = t.Description,
+            //                        Team = t.Team,
+            //                        AssigneeName = st,//string.Join(",", st),
+            //                        CreatedDate = t.CreatedDate,
+            //                        DueDate = t.DueDate,
+            //                        Status = t.Status
+            //                    }).ToList();
+
+            //    return tasklist;
+            //}
+            //else if (!string.IsNullOrEmpty(query.assigneeName) && !string.IsNullOrEmpty(query.team))
+            //{
+            //    var tasklist = (from t in _dbContext.Tasks
+            //                    join a in _dbContext.Assignees on t.TaskId equals a.TaskId
+            //                    into eGroup
+            //                    from e in eGroup.DefaultIfEmpty()
+            //                    where t.Team == query.team || e.Name==query.assigneeName
+            //                    select new TaskInformation()
+            //                    {
+            //                        TaskId = t.TaskId,
+            //                        Title = t.Title,
+            //                        Description = t.Description,
+            //                        Team = t.Team,
+            //                        AssigneeName = e.Name != null ? e.Name.Split().ToList() : null,//string.Join(",", st),
+            //                        CreatedDate = t.CreatedDate,
+            //                        DueDate = t.DueDate,
+            //                        Status = t.Status
+            //                    }).ToList();
+            //    return tasklist;
+            //}
+            //else
+            //{
+            //    var tasklist = (from t in _dbContext.Tasks
+            //                    let st = (from a in _dbContext.Assignees where a.TaskId == t.TaskId select a.Name).ToList()
+            //                    select new TaskInformation()
+            //                    {
+            //                        TaskId = t.TaskId,
+            //                        Title = t.Title,
+            //                        Description = t.Description,
+            //                        Team = t.Team,
+            //                        AssigneeName = st,//string.Join(",", st),
+            //                        CreatedDate = t.CreatedDate,
+            //                        DueDate = t.DueDate,
+            //                        Status = t.Status
+            //                    }).ToList();
+            //    return tasklist;
+            //}
+        
