@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TaskAPI.Data;
+using TaskAPI.Repository;
 using TaskAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
     builder.Services.AddRouting(options => options.LowercaseUrls = true);
-    
+    builder.Services.AddScoped<TaskRepository>();
     builder.Services.AddScoped<ITaskService, TaskService>();
     builder.Services.AddScoped<IAssigneeService, AssigneeService>();
     

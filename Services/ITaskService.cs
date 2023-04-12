@@ -1,4 +1,5 @@
-﻿using TaskAPI.Models;
+﻿using System.Data;
+using TaskAPI.Models;
 using TaskAPI.Task.Contracts.Queries;
 
 namespace TaskAPI.Services
@@ -7,6 +8,7 @@ namespace TaskAPI.Services
     {
         void CreateTask(Tasks task);
         List<TaskInformation> GetTask(GetAllPostQuery query);
-        List<Object> GetTeamsDetails();
+        List<TeamDetails> GetTeamsDetails();
+        AssigneeDetails GetAssigneeCount(string? assigneeName = null);
     }
 }

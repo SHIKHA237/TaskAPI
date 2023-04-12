@@ -1,23 +1,31 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Threading.Tasks;
 using TaskAPI.Data;
 using TaskAPI.Models;
+using TaskAPI.Repository;
 using TaskAPI.Task.Contracts;
 using TaskAPI.Task.Contracts.Queries;
 using static Azure.Core.HttpHeader;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TaskAPI.Services
 {
     public class TaskService : ITaskService
     {
         private readonly TaskDbContext _dbContext;
+        private readonly TaskRepository _taskRepository;
+        private readonly string? connectionString;
 
-        public TaskService(TaskDbContext dbContext)
+        public TaskService(TaskDbContext dbContext,IConfiguration configuration, TaskRepository taskRepository)
         {
             _dbContext = dbContext;
+             connectionString = configuration.GetConnectionString("TaskConnectionString");
+            _taskRepository = taskRepository;
         }
         public void CreateTask(Tasks task)
         {
@@ -26,101 +34,33 @@ namespace TaskAPI.Services
         }
         public List<TaskInformation> GetTask(GetAllPostQuery query)
         {
-           
-            if (!string.IsNullOrEmpty(query.AssigneeName) && query.Team=="")
-            {
-                var assignees = (from a in _dbContext.Assignees
-                               where a.Name == query.AssigneeName
-                                 select new
-                               {
-                                   a.Name,
-                                   a.TaskId
-                               }).ToList();
-                var tasks = _dbContext.Tasks.ToList();
-
-                var tasklist = (from t in tasks
-                               join a in assignees on t.TaskId equals a.TaskId
-                                select new TaskInformation()
-                                {
-                                    TaskId = t.TaskId,
-                                    Title = t.Title,
-                                    Description = t.Description,
-                                    Team = t.Team,
-                                    AssigneeName = a.Name.Split().ToList(),
-                                    CreatedDate = t.CreatedDate,
-                                    DueDate = t.DueDate,
-                                    Status = t.Status
-                                }).ToList();
-               
-                return tasklist;
-            }
-            else if (!string.IsNullOrEmpty(query.Team) && query.AssigneeName =="")
-            {
-                var tasklist = (from t in _dbContext.Tasks
-                                let st = (from a in _dbContext.Assignees
-                                          where a.TaskId == t.TaskId
-                                          select a.Name).ToList()
-                                where t.Team == query.Team
-                                select new TaskInformation()
-                                {
-                                    TaskId = t.TaskId,
-                                    Title = t.Title,
-                                    Description = t.Description,
-                                    Team = t.Team,
-                                    AssigneeName = st,//string.Join(",", st),
-                                    CreatedDate = t.CreatedDate,
-                                    DueDate = t.DueDate,
-                                    Status = t.Status
-                                }).ToList();
-
-                return tasklist;
-            }
-            else if (!string.IsNullOrEmpty(query.AssigneeName) && !string.IsNullOrEmpty(query.Team))
-            {
-                var tasklist = (from t in _dbContext.Tasks
-                                join a in _dbContext.Assignees on t.TaskId equals a.TaskId
-                                into eGroup
-                                from e in eGroup.DefaultIfEmpty()
-                                where t.Team == query.Team || e.Name==query.AssigneeName
-                                select new TaskInformation()
-                                {
-                                    TaskId = t.TaskId,
-                                    Title = t.Title,
-                                    Description = t.Description,
-                                    Team = t.Team,
-                                    AssigneeName = e.Name != null ? e.Name.Split().ToList() : null,//string.Join(",", st),
-                                    CreatedDate = t.CreatedDate,
-                                    DueDate = t.DueDate,
-                                    Status = t.Status
-                                }).ToList();
-                return tasklist;
-            }
-            else
-            {
-                var tasklist = (from t in _dbContext.Tasks
-                                let st = (from a in _dbContext.Assignees where a.TaskId == t.TaskId select a.Name).ToList()
-                                select new TaskInformation()
-                                {
-                                    TaskId = t.TaskId,
-                                    Title = t.Title,
-                                    Description = t.Description,
-                                    Team = t.Team,
-                                    AssigneeName = st,//string.Join(",", st),
-                                    CreatedDate = t.CreatedDate,
-                                    DueDate = t.DueDate,
-                                    Status = t.Status
-                                }).ToList();
-                return tasklist;
-            }
+            _taskRepository.GetDBResponseList(query);
+            return new List<TaskInformation>();
         }
 
-        public List<Object> GetTeamsDetails()
+
+        public List<TeamDetails> GetTeamsDetails()
         {
 
             var query = _dbContext.Tasks.GroupBy(x => x.Team).
-                      Select(x => new { Team = x.Key, TasksCount = x.Count() }).ToList();
-            return query.ToList<Object>();
+                      Select(x => new TeamDetails{ Team = x.Key, Count = x.Count() }).ToList();
+            return query;
         }
 
+        public AssigneeDetails GetAssigneeCount(string? assigneeName)
+        {
+
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                con.Open();
+                using (SqlCommand cmd = new SqlCommand("DECLARE @Assignees table (TaskId int,Name varchar(250));INSERT INTO @Assignees(TaskId,Name) SELECT DISTINCT a1.TaskId,STUFF((SELECT ', ' + a2.name FROM [Assignees] a2 where a1.TaskId = a2.TaskId FOR XML PATH ('')) , 1, 1, '')  AS Name from [Assignees] a1; SELECT COUNT([t].[TaskId]) FROM [Tasks] AS [t] LEFT JOIN  @Assignees AS [a] ON [t].[TaskId] = [a].[TaskId] WHERE  (@assignee IS NULL OR [a].[Name] like  '%'+@assignee+'%' );", con))
+                {
+                    cmd.Parameters.AddWithValue("@assignee", string.IsNullOrEmpty(assigneeName) ? DBNull.Value : assigneeName);
+                    int result = (int)cmd.ExecuteScalar();
+                    con.Close();
+                    return new AssigneeDetails { assigneeCount = result };
+                }
+            }
+        }
     }
 }

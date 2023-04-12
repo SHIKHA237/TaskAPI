@@ -1,10 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Http;
+using System.Data;
 using System.Linq;
 using TaskAPI.Models;
 using TaskAPI.Services;
 using TaskAPI.Task.Contracts;
 using TaskAPI.Task.Contracts.Queries;
+using Newtonsoft.Json;
+using System.Net;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace TaskAPI.Controllers
 {
@@ -21,6 +25,7 @@ namespace TaskAPI.Controllers
         }
 
         [HttpPost]
+        [SwaggerResponse(201, Type = typeof(List<TaskResponse>))]
         public IActionResult CreateTask(CreateTaskRequest request)
         {
             try
@@ -37,7 +42,7 @@ namespace TaskAPI.Controllers
 
                 _taskService.CreateTask(task);
 
-                List<String> AssigneesName = request.AssigneesName;
+                List<string> AssigneesName = request.AssigneesName;
                 foreach (var assigneeName in AssigneesName)
                 {
                     var assignee = new Assignee(
@@ -58,29 +63,42 @@ namespace TaskAPI.Controllers
                 task.Status
                 );
 
-                return Ok(response);
-
+                // return Ok(response);
+                return CreatedAtAction(
+                    nameof(GetTask),
+                    new {query = ""},
+                    response);
             }
             catch(Exception ex)
             {
-                return StatusCode(500, "Internal server error");
+                return StatusCode(409);
             }
           
 
         }
 
         [HttpGet]
+        [SwaggerResponse(200, Type = typeof(List<TaskInformation>))]
         public IActionResult GetTask([FromQuery] GetAllPostQuery query)
         {
-            var taskinformation = _taskService.GetTask(query);
-            return Ok(taskinformation);
+            var TaskInformation   = _taskService.GetTask(query);
+            return Ok(TaskInformation);
         }
 
-        [HttpGet("count")]
+        [HttpGet("team_count")]
+        [SwaggerResponse(200, Type = typeof(List<TeamDetails>))]
         public IActionResult GetTeamsDetails()
         {
             var teamdetails = _taskService.GetTeamsDetails();
             return Ok(teamdetails);
+        }
+
+        [HttpGet("assignee_count")]
+        [SwaggerResponse(200, Type = typeof(AssigneeDetails))]
+        public IActionResult GetAssigneeCount([FromHeader] string assigneeName)
+        {
+            var AssigneeDetails = _taskService.GetAssigneeCount(assigneeName);
+            return Ok(AssigneeDetails);
         }
     }
 }

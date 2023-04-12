@@ -2,7 +2,10 @@
 {
     public class GetAllPostQuery
     {
-        public string AssigneeName { get; set; } = "";
-        public string Team { get; set; } = "";
+    
+        public string? assigneeName { get; set; } = null;
+        public string? team { get; set; } = null;
+
+        
     }
 }
