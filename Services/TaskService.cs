@@ -34,8 +34,34 @@ namespace TaskAPI.Services
         }
         public List<TaskInformation> GetTask(GetAllPostQuery query)
         {
-            _taskRepository.GetDBResponseList(query);
-            return new List<TaskInformation>();
+            List<DBResponseRow> rowlist = _taskRepository.GetDBResponseList(query);
+            Dictionary<int, TaskInformation> result = new Dictionary<int, TaskInformation>();
+            foreach (DBResponseRow row in rowlist)
+            {
+                if(result.ContainsKey(row.TaskId) && !string.IsNullOrEmpty(row.Name))
+                {
+                    result[row.TaskId].AssigneeName.Add(row.Name);
+                }
+                else
+                {
+                    TaskInformation taskInformation = new TaskInformation();
+                    taskInformation.TaskId = row.TaskId;
+                    taskInformation.Status = row.Status;
+                    taskInformation.DueDate = row.DueDate;
+                    taskInformation.CreatedDate = row.CreatedDate;
+                    taskInformation.AssigneeName = new HashSet<string>();
+                    if(!string.IsNullOrEmpty(row.Name))
+                    {
+                        taskInformation.AssigneeName.Add(row.Name);
+                    }
+                    taskInformation.Description = row.Description;
+                    taskInformation.Title = row.Title;
+                    taskInformation.Team = row.Team;
+                    result[row.TaskId] = taskInformation;
+                }
+            }
+            return result.Values.ToList();
+             
         }
 
 
