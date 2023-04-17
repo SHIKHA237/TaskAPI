@@ -1,11 +1,12 @@
-﻿using TaskAPI.Models;
+﻿using System.ComponentModel.DataAnnotations;
+using TaskAPI.Models;
 using TaskAPI.Task.Contracts.DataAnnotations;
 
 
 namespace TaskAPI.Task.Contracts
 {
      public record CreateTaskRequest(
-         int TaskId,
+         [Range(1, int.MaxValue)]int TaskId,
          string Title,
          string Description,
          string Team,

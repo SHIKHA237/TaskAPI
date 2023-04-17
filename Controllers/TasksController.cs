@@ -39,10 +39,13 @@ namespace TaskAPI.Controllers
                request.DueDate,
                //  request.Image,
                "Active");
-
-                _taskService.CreateTask(task);
-
-                List<string> AssigneesName = request.AssigneesName;
+                var taskdata = _taskService.CreateTask(task);
+               
+                if(taskdata) 
+                { 
+                    return Conflict(new { message = $"An existing record with the id '{task.TaskId}' was already found." });
+                }
+                 List<string> AssigneesName = request.AssigneesName;
                 foreach (var assigneeName in AssigneesName)
                 {
                     var assignee = new Assignee(
@@ -71,9 +74,8 @@ namespace TaskAPI.Controllers
             }
             catch(Exception ex)
             {
-                return StatusCode(409);
+                return BadRequest(ex.Message);
             }
-          
 
         }
 

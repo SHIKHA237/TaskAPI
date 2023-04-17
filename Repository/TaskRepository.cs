@@ -1,7 +1,9 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using TaskAPI.Data;
 using TaskAPI.Models;
 using TaskAPI.Task.Contracts.Queries;
@@ -9,12 +11,10 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace TaskAPI.Repository
 {
-    public class TaskRepository 
+    public class TaskRepository :BaseRepository, ITaskRepository
     {
-        private readonly string? connectionString;
-        public TaskRepository(IConfiguration configuration)
+        public TaskRepository(TaskDbContext dbContext, IConfiguration configuration) : base(dbContext, configuration)
         {
-            connectionString = configuration.GetConnectionString("TaskConnectionString");
         }
 
         public List<DBResponseRow> GetDBResponseList(GetAllPostQuery queryparams)
@@ -95,5 +95,41 @@ namespace TaskAPI.Repository
             basequery = basequery + whereclause;
             return basequery;
         }
+
+        public AssigneeDetails GetAssigneeCountResponse(string? assigneeName)
+        {
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                con.Open();
+                using (SqlCommand cmd = new SqlCommand("Select count(TaskId) from Assignees WHERE Name=@assignee", con))
+                {
+                    cmd.Parameters.AddWithValue("@assignee", assigneeName);
+                    int result = (int)cmd.ExecuteScalar();
+                    con.Close();
+                    return new AssigneeDetails { assigneeCount = result };
+                }
+            }
+        }
+
+        public List<TeamDetails> TeamCountResponse()
+        {
+            List<TeamDetails> teamcount = _dbContext.Tasks.GroupBy(x => x.Team).
+                     Select(x => new TeamDetails { Team = x.Key, Count = x.Count() }).ToList();
+            return teamcount;
+        }
+
+        public void SaveCreateTask(Tasks task)
+        {
+            _dbContext.Tasks.Add(task);
+            _dbContext.SaveChanges();
+        }
+
+        public bool GetTaskData(Tasks task)
+        {
+           // var taskid = _dbContext.Tasks.Where(x => x.TaskId == taskId).Select(x => x.TaskId).FirstOrDefault();
+            var taskdata = _dbContext.Tasks.Contains(task);
+            return taskdata;
+        }
+            
     }
 }

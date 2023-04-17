@@ -5,11 +5,13 @@ namespace TaskAPI.Repository
 {
     public abstract class BaseRepository
     {
-        protected readonly TaskDbContext _context;
+        protected readonly TaskDbContext _dbContext;
+        protected readonly string? connectionString;
 
-        public BaseRepository(TaskDbContext context)
+        public BaseRepository(TaskDbContext dbContext, IConfiguration configuration)
         {
-            _context = context;
+            _dbContext = dbContext;
+            connectionString = configuration.GetConnectionString("TaskConnectionString");
         }
     }
 }
